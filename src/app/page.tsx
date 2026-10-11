@@ -29,7 +29,7 @@ import { ImportExportModal } from '@/components/modals/ImportExportModal';
 import { AuthModal } from '@/components/auth/AuthModal';
 
 // Storage & Types
-import { storage } from '@/lib/storage';
+import { storage, INITIAL_USER } from '@/lib/storage';
 import {
   ActiveTab,
   Resource,
@@ -45,9 +45,10 @@ export default function Home() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Entities & Authentication
-  const [user, setUser] = useState<UserProfile | null>(() => storage.getCurrentSession());
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [resources, setResources] = useState<Resource[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -76,6 +77,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setIsMounted(true);
     reloadData();
   }, []);
 
@@ -192,7 +194,7 @@ export default function Home() {
   };
 
   // Active user profile fallback
-  const displayUser = user || storage.getUser();
+  const displayUser = user || (isMounted ? storage.getUser() : INITIAL_USER);
 
   return (
     <div className="h-screen w-screen bg-[#090D16] text-slate-100 flex flex-col font-sans transition-colors duration-200 overflow-hidden select-none">

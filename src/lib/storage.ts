@@ -597,7 +597,7 @@ class StorageManager {
   }
 
   getCurrentSession(): UserProfile | null {
-    if (!this.isBrowser()) return INITIAL_USER;
+    if (!this.isBrowser()) return null;
     const session = localStorage.getItem(STORAGE_KEYS.SESSION);
     if (session === 'logged_out') {
       return null;
