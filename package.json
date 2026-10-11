@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "@supabase/server": "^1.9.1",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.3",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^26.6.5",
