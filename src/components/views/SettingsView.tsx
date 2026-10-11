@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, Database, ShieldCheck, RefreshCw, Save, Check } from 'lucide-react';
+import { User, Database, ShieldCheck, RefreshCw, Save, Check, Sun, Moon, Palette } from 'lucide-react';
 import { UserProfile } from '@/types';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { storage, INITIAL_RESOURCES, INITIAL_TASKS, INITIAL_GOALS, INITIAL_CATEGORIES } from '@/lib/storage';
@@ -10,12 +10,16 @@ interface SettingsViewProps {
   user: UserProfile;
   onUpdateUser: (user: UserProfile) => void;
   onReloadData: () => void;
+  theme?: string;
+  onToggleTheme?: () => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   user,
   onUpdateUser,
   onReloadData,
+  theme = 'dark',
+  onToggleTheme,
 }) => {
   const [fullName, setFullName] = useState(user.fullName);
   const [email, setEmail] = useState(user.email);
@@ -136,6 +140,70 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
       </form>
+
+      {/* Appearance & Theme Preferences */}
+      <div className="glass-card rounded-2xl p-5 border border-white/[0.08] space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
+          <Palette className="w-4 h-4 text-purple-400" />
+          <h2 className="text-sm font-bold text-white">Appearance & Theme</h2>
+        </div>
+
+        <p className="text-xs text-slate-400">
+          Customize the aesthetic theme of LinkVault. Select Dark Mode for sleek obsidian styling or Light Mode for crisp high-contrast clarity.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          {/* Dark Mode Option */}
+          <div
+            onClick={() => {
+              if (theme !== 'dark' && onToggleTheme) onToggleTheme();
+            }}
+            className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${
+              theme === 'dark'
+                ? 'bg-indigo-500/10 border-indigo-500/40 shadow-glow'
+                : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center">
+                <Moon className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Dark Obsidian</p>
+                <p className="text-[11px] text-slate-400">Deep space background, subtle glass glow</p>
+              </div>
+            </div>
+            {theme === 'dark' && (
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20" />
+            )}
+          </div>
+
+          {/* Light Mode Option */}
+          <div
+            onClick={() => {
+              if (theme !== 'light' && onToggleTheme) onToggleTheme();
+            }}
+            className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${
+              theme === 'light'
+                ? 'bg-amber-500/10 border-amber-500/40 shadow-glow'
+                : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                <Sun className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Clean Light</p>
+                <p className="text-[11px] text-slate-400">Crisp canvas, soft borders, high legibility</p>
+              </div>
+            </div>
+            {theme === 'light' && (
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 ring-4 ring-amber-500/20" />
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Backend & Security Status */}
       <div className="glass-card rounded-2xl p-5 border border-white/[0.08] space-y-3.5">

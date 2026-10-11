@@ -101,9 +101,13 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onToggleTheme}
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-white/[0.05] transition-colors"
+          className="p-2 rounded-xl text-slate-400 hover:bg-white/[0.05] transition-colors"
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-45" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-500 fill-indigo-500/20 transition-transform hover:-rotate-12" />
+          )}
         </button>
 
         {/* Notifications */}

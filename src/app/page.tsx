@@ -80,6 +80,25 @@ export default function Home() {
 
   useEffect(() => {
     setIsMounted(true);
+    let initialTheme: 'dark' | 'light' = 'dark';
+    try {
+      const savedTheme = localStorage.getItem('linkvault_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        initialTheme = savedTheme;
+      } else if (document.documentElement.classList.contains('light')) {
+        initialTheme = 'light';
+      }
+    } catch (_) {}
+
+    setTheme(initialTheme);
+    if (initialTheme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+
     reloadData();
     storage.syncWithSupabase().then((res) => {
       if (res.synced && (res.count ?? 0) > 0) {
@@ -92,6 +111,10 @@ export default function Home() {
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
+    try {
+      localStorage.setItem('linkvault_theme', nextTheme);
+    } catch (_) {}
+
     if (nextTheme === 'light') {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
@@ -216,7 +239,7 @@ export default function Home() {
   const displayUser = user || (isMounted ? storage.getUser() : INITIAL_USER);
 
   return (
-    <div className="h-screen w-screen bg-[#090D16] text-slate-100 flex flex-col font-sans transition-colors duration-200 overflow-hidden select-none">
+    <div className="h-screen w-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200 overflow-hidden select-none">
       {/* Top Header Omnibar */}
       <Header
         user={user}
@@ -403,6 +426,8 @@ export default function Home() {
               user={displayUser}
               onUpdateUser={setUser}
               onReloadData={reloadData}
+              theme={theme}
+              onToggleTheme={toggleTheme}
             />
           )}
         </main>
