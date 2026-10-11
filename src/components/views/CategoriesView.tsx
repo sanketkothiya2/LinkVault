@@ -10,8 +10,40 @@ import {
   Layers,
   Sparkles,
   Link2,
+  Film,
+  Box,
+  Palette,
+  Globe,
+  Code2,
+  Cpu,
+  Bot,
+  GraduationCap,
+  Play,
+  Type,
+  Smile,
+  Compass,
+  Briefcase,
 } from 'lucide-react';
 import { Category, Resource } from '@/types';
+
+const getCategoryIcon = (slug: string) => {
+  const s = slug.toLowerCase();
+  if (s.includes('animation') || s.includes('motion')) return Film;
+  if (s.includes('three') || s.includes('3d') || s.includes('spline')) return Box;
+  if (s.includes('design') || s.includes('ui') || s.includes('ux') || s.includes('color')) return Palette;
+  if (s.includes('website') || s.includes('web') || s.includes('portfolio') || s.includes('awwwards')) return Globe;
+  if (s.includes('front') || s.includes('react') || s.includes('code') || s.includes('dev')) return Code2;
+  if (s.includes('tech') || s.includes('backend') || s.includes('api')) return Cpu;
+  if (s.includes('ai') || s.includes('prompt') || s.includes('bot')) return Bot;
+  if (s.includes('learn') || s.includes('tutorial') || s.includes('course')) return GraduationCap;
+  if (s.includes('video') || s.includes('youtube')) return Play;
+  if (s.includes('tool') || s.includes('utility')) return Sparkles;
+  if (s.includes('type') || s.includes('font')) return Type;
+  if (s.includes('icon') || s.includes('asset')) return Smile;
+  if (s.includes('inspirational') || s.includes('explore')) return Compass;
+  if (s.includes('career') || s.includes('job')) return Briefcase;
+  return Folder;
+};
 
 interface CategoriesViewProps {
   categories: Category[];
@@ -105,12 +137,13 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             (r) => r.categoryId === cat.id && !r.isArchived
           );
           const previewItems = catResources.slice(0, 3);
+          const CatIcon = getCategoryIcon(cat.slug);
 
           return (
             <div
               key={cat.id}
               onClick={() => onSelectCategory(cat.slug)}
-              className="glass-card rounded-2xl p-4 border border-white/[0.08] hover:border-indigo-500/40 transition-all duration-200 cursor-pointer group flex flex-col justify-between space-y-3.5 relative overflow-hidden"
+              className="glass-card rounded-2xl p-4 border border-white/[0.08] hover:border-indigo-500/40 hover:scale-[1.01] transition-all duration-200 cursor-pointer group flex flex-col justify-between space-y-3.5 relative overflow-hidden"
             >
               {/* Top Accent Glow */}
               <div
@@ -121,11 +154,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               {/* Card Header */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="w-3 h-3 rounded-full shrink-0 shadow-sm"
-                      style={{ backgroundColor: cat.color }}
-                    />
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border border-white/[0.08] transition-transform group-hover:scale-110"
+                      style={{
+                        backgroundColor: `${cat.color}25`,
+                        color: cat.color,
+                      }}
+                    >
+                      <CatIcon className="w-3.5 h-3.5" />
+                    </div>
                     <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate">
                       {cat.name}
                     </h3>
