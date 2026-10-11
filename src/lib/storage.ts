@@ -678,17 +678,27 @@ class StorageManager {
   getCurrentSession(): UserProfile | null {
     if (!this.isBrowser()) return null;
     const session = localStorage.getItem(STORAGE_KEYS.SESSION);
-    if (session === 'logged_out') {
+    if (!session || session === 'logged_out') {
       return null;
-    }
-    if (!session) {
-      return this.getUser();
     }
     try {
       return JSON.parse(session);
     } catch {
-      return this.getUser();
+      return null;
     }
+  }
+
+  enterDemoSession(): UserProfile {
+    const demoUser: UserProfile = {
+      id: 'usr-demo-guest',
+      fullName: 'Explorer Guest',
+      email: 'guest@linkvault.app',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      quote: 'Collect what inspires you, Build what you dream.',
+      theme: 'dark',
+    };
+    this.setCurrentSession(demoUser);
+    return demoUser;
   }
 
   setCurrentSession(user: UserProfile | null): void {

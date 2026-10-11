@@ -28,6 +28,7 @@ import { CategoryModal } from '@/components/modals/CategoryModal';
 import { SearchCommandDialog } from '@/components/modals/SearchCommandDialog';
 import { ImportExportModal } from '@/components/modals/ImportExportModal';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { LandingPage } from '@/components/landing/LandingPage';
 
 // Storage & Types
 import { storage, INITIAL_USER } from '@/lib/storage';
@@ -128,8 +129,12 @@ export default function Home() {
   const handleSignOut = () => {
     storage.signOut();
     setUser(null);
-    setAuthModalMode('signin');
-    setIsAuthModalOpen(true);
+  };
+
+  const handleEnterGuestDemo = () => {
+    const demoUser = storage.enterDemoSession();
+    setUser(demoUser);
+    reloadData();
   };
 
   const handleOpenAuth = (mode: 'signin' | 'signup' = 'signin') => {
@@ -235,8 +240,28 @@ export default function Home() {
     setCategories(storage.getCategories());
   };
 
-  // Active user profile fallback
-  const displayUser = user || (isMounted ? storage.getUser() : INITIAL_USER);
+  // If not logged in, render the full 3D interactive Landing Page
+  if (isMounted && !user) {
+    return (
+      <>
+        <LandingPage
+          onOpenAuth={handleOpenAuth}
+          onEnterGuestDemo={handleEnterGuestDemo}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthSuccess={handleAuthSuccess}
+          initialMode={authModalMode}
+        />
+      </>
+    );
+  }
+
+  // Active user profile
+  const displayUser = user || INITIAL_USER;
 
   return (
     <div className="h-screen w-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200 overflow-hidden select-none">
