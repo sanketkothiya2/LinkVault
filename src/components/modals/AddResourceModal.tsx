@@ -10,6 +10,7 @@ interface AddResourceModalProps {
   onClose: () => void;
   categories: Category[];
   onSave: (resource: Partial<Resource>) => void;
+  defaultCategoryId?: string;
 }
 
 export const AddResourceModal: React.FC<AddResourceModalProps> = ({
@@ -17,6 +18,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
   onClose,
   categories,
   onSave,
+  defaultCategoryId,
 }) => {
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -31,7 +33,33 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
   const [isLoadingMeta, setIsLoadingMeta] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const resetForm = (initCatId?: string) => {
+    setUrl('');
+    setTitle('');
+    setDescription('');
+    setThumbnailUrl('');
+    setFaviconUrl('');
+    setContentType('website');
+    setCategoryId(initCatId || defaultCategoryId || '');
+    setTagInput('');
+    setTags([]);
+    setPersonalNotes('');
+    setIsLoadingMeta(false);
+    setErrorMsg('');
+  };
+
+  React.useEffect(() => {
+    if (isOpen) {
+      resetForm(defaultCategoryId);
+    }
+  }, [isOpen, defaultCategoryId]);
+
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
   const handleFetchMetadata = async () => {
     if (!url.trim() || !isValidUrl(url)) {
@@ -83,6 +111,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
 
     const cleanUrl = normalizeUrl(url);
     const domain = cleanUrl.replace(/^https?:\/\//, '').split('/')[0].replace(/^www\./, '');
+    const chosenCategoryId = categoryId || defaultCategoryId || undefined;
 
     onSave({
       url: cleanUrl,
@@ -92,7 +121,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
       thumbnailUrl: thumbnailUrl.trim(),
       faviconUrl: faviconUrl.trim() || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
       contentType,
-      categoryId: categoryId || undefined,
+      categoryId: chosenCategoryId,
       tags,
       personalNotes: personalNotes.trim(),
       isFavorite: false,
@@ -100,6 +129,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
       isArchived: false,
     });
 
+    resetForm();
     onClose();
   };
 
@@ -118,7 +148,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
           >
             <X className="w-4 h-4" />
@@ -312,7 +342,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
         <div className="pt-4 border-t border-white/[0.08] flex items-center justify-end gap-2.5">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
           >
             Cancel

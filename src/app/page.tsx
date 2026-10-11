@@ -14,6 +14,7 @@ import { MiniCalendarWidget } from '@/components/dashboard/MiniCalendarWidget';
 
 // Views
 import { AllResourcesView } from '@/components/views/AllResourcesView';
+import { CategoriesView } from '@/components/views/CategoriesView';
 import { TasksView } from '@/components/views/TasksView';
 import { GoalsView } from '@/components/views/GoalsView';
 import { SettingsView } from '@/components/views/SettingsView';
@@ -56,6 +57,7 @@ export default function Home() {
 
   // Modals
   const [isAddResourceOpen, setIsAddResourceOpen] = useState(false);
+  const [modalDefaultCategoryId, setModalDefaultCategoryId] = useState<string | undefined>(undefined);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -113,6 +115,18 @@ export default function Home() {
   };
 
   // Resource Actions
+  const handleOpenAddResource = (catId?: string) => {
+    if (catId) {
+      setModalDefaultCategoryId(catId);
+    } else if (selectedCategorySlug) {
+      const activeCat = categories.find((c) => c.slug === selectedCategorySlug);
+      setModalDefaultCategoryId(activeCat?.id);
+    } else {
+      setModalDefaultCategoryId(undefined);
+    }
+    setIsAddResourceOpen(true);
+  };
+
   const handleSaveResource = (resData: Partial<Resource>) => {
     const created = storage.addResource(resData);
     setResources(storage.getResources());
@@ -222,6 +236,7 @@ export default function Home() {
           selectedCategorySlug={selectedCategorySlug}
           onSelectCategory={setSelectedCategorySlug}
           onOpenNewCategoryModal={() => setIsCategoryModalOpen(true)}
+          resources={resources}
         />
 
         {/* Dynamic Center/Right Workspace Area (Independent smooth scroll) */}
@@ -265,7 +280,10 @@ export default function Home() {
               {/* Right Column Panel */}
               <div className="w-full xl:w-80 2xl:w-88 shrink-0 space-y-5">
                 {/* Quick Add Resource */}
-                <QuickAddWidget onSaveResource={handleSaveResource} />
+                <QuickAddWidget
+                  onSaveResource={handleSaveResource}
+                  categories={categories}
+                />
 
                 {/* Today's Tasks */}
                 <TodayTasksWidget
@@ -298,9 +316,10 @@ export default function Home() {
             </div>
           )}
 
-          {/* ALL RESOURCES / CATEGORY / FAVORITES / READ LATER / ARCHIVE VIEWS */}
+          {/* ALL RESOURCES / CATEGORY / FAVORITES / READ LATER / ARCHIVE / COLLECTIONS VIEWS */}
           {(activeTab === 'all-resources' ||
             activeTab === 'favorites' ||
+            activeTab === 'collections' ||
             activeTab === 'read-later' ||
             activeTab === 'archive' ||
             activeTab === 'recently-viewed' ||
@@ -313,9 +332,9 @@ export default function Home() {
               onSelectResource={handleSelectResource}
               onToggleFavorite={handleToggleFavorite}
               onToggleArchive={handleToggleArchive}
-              onOpenAddResource={() => setIsAddResourceOpen(true)}
+              onOpenAddResource={() => handleOpenAddResource()}
               filterMode={
-                activeTab === 'favorites'
+                activeTab === 'favorites' || activeTab === 'collections'
                   ? 'favorites'
                   : activeTab === 'read-later'
                   ? 'read-later'
@@ -325,6 +344,20 @@ export default function Home() {
                   ? 'recently-viewed'
                   : 'all'
               }
+            />
+          )}
+
+          {/* CATEGORIES VIEW (Dedicated Hub matching Image 3) */}
+          {activeTab === 'categories' && !selectedCategorySlug && (
+            <CategoriesView
+              categories={categories}
+              resources={resources}
+              onSelectCategory={(slug) => {
+                setSelectedCategorySlug(slug);
+                setActiveTab('all-resources');
+              }}
+              onOpenNewCategoryModal={() => setIsCategoryModalOpen(true)}
+              onOpenAddResource={(catId) => handleOpenAddResource(catId)}
             />
           )}
 
@@ -380,9 +413,13 @@ export default function Home() {
 
       <AddResourceModal
         isOpen={isAddResourceOpen}
-        onClose={() => setIsAddResourceOpen(false)}
+        onClose={() => {
+          setIsAddResourceOpen(false);
+          setModalDefaultCategoryId(undefined);
+        }}
         categories={categories}
         onSave={handleSaveResource}
+        defaultCategoryId={modalDefaultCategoryId}
       />
 
       <ResourceDetailModal

@@ -2,15 +2,17 @@
 
 import React, { useState } from 'react';
 import { Link as LinkIcon, Loader2, Sparkles, Check, Globe } from 'lucide-react';
-import { Resource, ContentType, ExtractedMetadata } from '@/types';
+import { Resource, ContentType, Category, ExtractedMetadata } from '@/types';
 import { isValidUrl, normalizeUrl } from '@/lib/utils';
 
 interface QuickAddWidgetProps {
   onSaveResource: (resource: Partial<Resource>) => void;
+  categories?: Category[];
 }
 
-export const QuickAddWidget: React.FC<QuickAddWidgetProps> = ({ onSaveResource }) => {
+export const QuickAddWidget: React.FC<QuickAddWidgetProps> = ({ onSaveResource, categories = [] }) => {
   const [url, setUrl] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [selectedType, setSelectedType] = useState<ContentType | 'more'>('website');
   const [isLoading, setIsLoading] = useState(false);
   const [preview, setPreview] = useState<ExtractedMetadata | null>(null);
@@ -82,6 +84,7 @@ export const QuickAddWidget: React.FC<QuickAddWidgetProps> = ({ onSaveResource }
         thumbnailUrl: meta?.thumbnailUrl || '',
         faviconUrl: meta?.faviconUrl || '',
         contentType: finalType,
+        categoryId: selectedCategoryId || undefined,
         isFavorite: false,
         isReadLater: false,
         isArchived: false,
@@ -89,6 +92,7 @@ export const QuickAddWidget: React.FC<QuickAddWidgetProps> = ({ onSaveResource }
       });
 
       setUrl('');
+      setSelectedCategoryId('');
       setPreview(null);
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 2500);
@@ -155,6 +159,24 @@ export const QuickAddWidget: React.FC<QuickAddWidgetProps> = ({ onSaveResource }
               <p className="text-xs font-semibold text-white truncate">{preview.title}</p>
               <p className="text-[10px] text-slate-400 truncate">{preview.domain}</p>
             </div>
+          </div>
+        )}
+
+        {/* Category & Content Type Selection */}
+        {categories && categories.length > 0 && (
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              className="w-full bg-[#0B0F19] border border-white/[0.08] focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+            >
+              <option value="">📁 Select Category (optional)...</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
         )}
 

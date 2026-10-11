@@ -18,7 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { ActiveTab, Category } from '@/types';
+import { ActiveTab, Category, Resource } from '@/types';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -27,6 +27,7 @@ interface SidebarProps {
   selectedCategorySlug: string | null;
   onSelectCategory: (slug: string | null) => void;
   onOpenNewCategoryModal: () => void;
+  resources?: Resource[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,6 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   selectedCategorySlug,
   onSelectCategory,
   onOpenNewCategoryModal,
+  resources,
 }) => {
   const [showAllCategories, setShowAllCategories] = useState(false);
 
@@ -124,7 +126,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span className="truncate">{cat.name}</span>
                   </div>
                   <span className="text-[10px] text-slate-400 group-hover:text-slate-300 font-mono">
-                    {cat.itemCount || 0}
+                    {resources ? resources.filter((r) => r.categoryId === cat.id && !r.isArchived).length : (cat.itemCount || 0)}
                   </span>
                 </button>
               );

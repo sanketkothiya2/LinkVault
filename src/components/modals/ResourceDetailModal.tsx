@@ -194,10 +194,18 @@ export const ResourceDetailModal: React.FC<ResourceDetailModalProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs">
             <div>
               <span className="text-[10px] text-slate-400 block mb-0.5">Category</span>
-              <span className="font-semibold text-white flex items-center gap-1.5">
-                <Folder className="w-3.5 h-3.5 text-indigo-400" />
-                {category?.name || 'Uncategorized'}
-              </span>
+              <select
+                value={resource.categoryId || ''}
+                onChange={(e) => onUpdateResource(resource.id, { categoryId: e.target.value || undefined })}
+                className="bg-[#090D16] border border-white/[0.08] focus:border-indigo-500 rounded-lg px-2 py-0.5 text-xs text-white focus:outline-none"
+              >
+                <option value="">Uncategorized</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <span className="text-[10px] text-slate-400 block mb-0.5">Date Added</span>

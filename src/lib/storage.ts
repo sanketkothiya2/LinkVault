@@ -1,6 +1,7 @@
 'use client';
 
 import { Resource, Task, Goal, Category, UserProfile, ExtractedMetadata } from '@/types';
+import { supabase } from '@/lib/supabase';
 
 export const INITIAL_CATEGORIES: Category[] = [
   { id: 'cat-anim', name: 'Animation & Motion', slug: 'animation-motion', color: '#F97316', itemCount: 24, displayOrder: 1 },
@@ -356,6 +357,39 @@ class StorageManager {
     };
     list.unshift(newRes);
     this.saveResources(list);
+
+    // Sync to Supabase in background
+    if (this.isBrowser() && supabase) {
+      Promise.resolve(
+        supabase
+          .from('resources')
+          .insert([{
+            id: newRes.id,
+            url: newRes.url,
+            domain: newRes.domain,
+            title: newRes.title,
+            description: newRes.description,
+            thumbnail_url: newRes.thumbnailUrl,
+            favicon_url: newRes.faviconUrl,
+            content_type: newRes.contentType,
+            category_id: newRes.categoryId || null,
+            tags: newRes.tags,
+            is_favorite: newRes.isFavorite,
+            is_read_later: newRes.isReadLater,
+            is_archived: newRes.isArchived,
+            personal_notes: newRes.personalNotes,
+            view_count: newRes.viewCount,
+            created_at: newRes.createdAt,
+          }])
+      )
+        .then((res) => {
+          if (res?.error && !res.error.message.includes('schema cache')) {
+            console.warn('[Supabase Sync] Resource insert notice:', res.error.message);
+          }
+        })
+        .catch(() => {});
+    }
+
     return newRes;
   }
 
@@ -365,6 +399,34 @@ class StorageManager {
     if (index === -1) return null;
     list[index] = { ...list[index], ...updates, updatedAt: new Date().toISOString() };
     this.saveResources(list);
+
+    // Sync to Supabase in background
+    if (this.isBrowser() && supabase) {
+      Promise.resolve(
+        supabase
+          .from('resources')
+          .update({
+            title: list[index].title,
+            description: list[index].description,
+            category_id: list[index].categoryId || null,
+            tags: list[index].tags,
+            is_favorite: list[index].isFavorite,
+            is_read_later: list[index].isReadLater,
+            is_archived: list[index].isArchived,
+            personal_notes: list[index].personalNotes,
+            view_count: list[index].viewCount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id)
+      )
+        .then((res) => {
+          if (res?.error && !res.error.message.includes('schema cache')) {
+            console.warn('[Supabase Sync] Resource update notice:', res.error.message);
+          }
+        })
+        .catch(() => {});
+    }
+
     return list[index];
   }
 
@@ -373,6 +435,23 @@ class StorageManager {
     const filtered = list.filter((r) => r.id !== id);
     if (filtered.length === list.length) return false;
     this.saveResources(filtered);
+
+    // Sync to Supabase in background
+    if (this.isBrowser() && supabase) {
+      Promise.resolve(
+        supabase
+          .from('resources')
+          .delete()
+          .eq('id', id)
+      )
+        .then((res) => {
+          if (res?.error && !res.error.message.includes('schema cache')) {
+            console.warn('[Supabase Sync] Resource delete notice:', res.error.message);
+          }
+        })
+        .catch(() => {});
+    }
+
     return true;
   }
 

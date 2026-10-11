@@ -246,7 +246,17 @@ export const AllResourcesView: React.FC<AllResourcesViewProps> = ({
                 </div>
 
                 <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="truncate max-w-[120px]">{res.domain}</span>
+                  <div className="flex items-center gap-1.5 truncate max-w-[140px]">
+                    {categories.find((c) => c.id === res.categoryId) && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: categories.find((c) => c.id === res.categoryId)?.color }}
+                      />
+                    )}
+                    <span className="truncate">
+                      {categories.find((c) => c.id === res.categoryId)?.name || res.domain}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={(e) => {
@@ -301,7 +311,7 @@ export const AllResourcesView: React.FC<AllResourcesViewProps> = ({
                   <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
                     <span>{res.domain}</span>
                     <span>•</span>
-                    <span className="capitalize">{res.contentType}</span>
+                    <span>{categories.find((c) => c.id === res.categoryId)?.name || res.contentType}</span>
                     <span>•</span>
                     <span>{formatRelativeTime(res.createdAt)}</span>
                   </div>
