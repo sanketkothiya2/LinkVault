@@ -819,6 +819,49 @@ class StorageManager {
       return { success: false, error: e.message };
     }
   }
+
+  // --- Supabase Cloud Sync ---
+  async syncWithSupabase(): Promise<{ synced: boolean; count?: number; message?: string }> {
+    if (!this.isBrowser() || !supabase) return { synced: false, message: 'Supabase not configured' };
+    try {
+      const { data: remoteResources, error } = await supabase.from('resources').select('*');
+      if (error) return { synced: false, message: error.message };
+
+      if (remoteResources && remoteResources.length > 0) {
+        const localList = this.getResources();
+        const map = new Map<string, Resource>();
+        localList.forEach((r) => map.set(r.id, r));
+        remoteResources.forEach((r: any) => {
+          map.set(r.id, {
+            id: r.id,
+            url: r.url,
+            domain: r.domain,
+            title: r.title,
+            description: r.description || '',
+            thumbnailUrl: r.thumbnail_url || '',
+            faviconUrl: r.favicon_url || '',
+            contentType: r.content_type || 'website',
+            categoryId: r.category_id || undefined,
+            tags: Array.isArray(r.tags) ? r.tags : [],
+            isFavorite: r.is_favorite ?? false,
+            isReadLater: r.is_read_later ?? false,
+            isArchived: r.is_archived ?? false,
+            personalNotes: r.personal_notes || '',
+            viewCount: r.view_count || 0,
+            lastOpenedAt: r.last_opened_at,
+            createdAt: r.created_at,
+            updatedAt: r.updated_at,
+          });
+        });
+        const merged = Array.from(map.values());
+        this.saveResources(merged);
+        return { synced: true, count: merged.length, message: 'Synced with Supabase' };
+      }
+      return { synced: true, count: 0, message: 'Supabase table is ready' };
+    } catch (e: any) {
+      return { synced: false, message: e.message };
+    }
+  }
 }
 
 export const storage = new StorageManager();

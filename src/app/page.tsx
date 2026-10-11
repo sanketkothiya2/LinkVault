@@ -81,6 +81,11 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true);
     reloadData();
+    storage.syncWithSupabase().then((res) => {
+      if (res.synced && (res.count ?? 0) > 0) {
+        reloadData();
+      }
+    });
   }, []);
 
   // Theme Toggle
