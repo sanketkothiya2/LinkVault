@@ -1,6 +1,6 @@
 -- LinkVault Complete PostgreSQL Schema for Supabase
 -- Copy and paste this entire script into your Supabase SQL Editor:
--- https://supabase.com/dashboard/project/twohfidrinjwpsrssjhh/sql/new
+-- https://supabase.com/dashboard/project/_/sql/new
 
 -- 1. Enable UUID Extension
 create extension if not exists "uuid-ossp";

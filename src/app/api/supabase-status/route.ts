@@ -39,7 +39,7 @@ export async function GET() {
         tasks: tasksRes.error?.message || null,
         goals: goalsRes.error?.message || null,
       },
-      sqlEditorUrl: 'https://supabase.com/dashboard/project/twohfidrinjwpsrssjhh/sql/new',
+      sqlEditorUrl: `https://supabase.com/dashboard/project/${(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '').replace(/^https?:\/\//, '').split('.')[0] || 'default'}/sql/new`,
       migrationFile: 'supabase/migrations/20250101_initial_schema.sql',
     });
   } catch (err: any) {
